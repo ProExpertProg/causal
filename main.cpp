@@ -20,14 +20,20 @@ int main() {
 
     // TODO std::random
     srand(0);
-    auto [revenue, cost, profit] = initialize(N, M, geos, teams);
+    Tensor<float> revenue({geos, teams, N, M}, false),
+            cost({geos, teams, N}, false),
+            profit({geos, teams, N});
+
+    revenue.fill([](std::size_t index) { return (rand() % 10); });
+    cost.fill([](std::size_t index) { return (rand() % 100) / 10.0f; });
+
 //    std::cout << revenue << std::endl;
 //    std::cout << cost << std::endl;
 //    std::cout << profit << std::endl;
     std::chrono::nanoseconds duration[NTrials];
 
     for (auto &d: duration) {
-        for (int i = 0; i < profit.size(); ++i) profit.raw()[i] = 0;
+        profit.fill([](std::size_t i){ return 0; });
 
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -43,7 +49,7 @@ int main() {
 
     assert(profit.size() == profit2.size());
     for (int i = 0; i < profit2.size(); ++i) {
-        assert(profit.raw()[i] == profit2.raw()[i]);
+        assert(profit[i] == profit2[i]);
     }
 
     for (auto d: duration) {

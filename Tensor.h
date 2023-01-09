@@ -85,6 +85,14 @@ struct Tensor {
         return total;
     }
 
+    template<std::invocable<size_t> F>
+    requires std::convertible_to<std::invoke_result_t<F, size_t>, T>
+    void fill(F f) {
+        for (size_t i = 0; i < size(); ++i) {
+            (*this)[i] = f(i);
+        }
+    };
+
     // ====================
     // Constructors
     // ====================
