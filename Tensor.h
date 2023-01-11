@@ -5,7 +5,9 @@
 #include <algorithm>
 #include <cassert>
 #include <ostream>
+#if __cpp_concepts
 #include <concepts>
+#endif
 
 using std::size_t;
 
@@ -81,8 +83,12 @@ struct Tensor {
         return total;
     }
 
+#if __cpp_concepts
     template<std::invocable<size_t> F>
     requires std::convertible_to<std::invoke_result_t<F, size_t>, T>
+#else
+    template<typename F>
+#endif
     void fill(F f) {
         for (size_t i = 0; i < size(); ++i) {
             (*this)[i] = f(i);
