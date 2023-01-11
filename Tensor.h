@@ -2,16 +2,12 @@
 
 #include <cstdint>
 #include <cstring>
-#include <span>
 #include <algorithm>
 #include <cassert>
 #include <ostream>
 #include <concepts>
 
 using std::size_t;
-
-template<class T>
-concept is_size_t = std::same_as<T, size_t>;
 
 template<class T>
 struct Tensor;
@@ -97,19 +93,19 @@ struct Tensor {
     // Constructors
     // ====================
 
+    void swap(Tensor &other) {
+        std::swap(data, other.data);
+        std::swap(ns, other.ns);
+        std::swap(total, other.total);
+    }
+
     Tensor(const Tensor &other) : ns(other.ns), total(other.total) {
         data = new T[total];
         memcpy(data, other.data, total * sizeof(T));
     }
 
-    // TODO warning
     Tensor &operator=(const Tensor &other) {
-        delete[] data;
-
-        ns = other.ns;
-        total = other.total;
-        data = new T[total];
-        memcpy(data, other.data, total * sizeof(T));
+        Tensor(other).swap(*this);
         return *this;
     };
 
@@ -117,13 +113,8 @@ struct Tensor {
         other.data = nullptr;
     }
 
-    Tensor &operator=(Tensor &&other) {
-        delete[] data;
-
-        ns = std::move(other.ns);
-        total = other.total;
-        data = other.data;
-        other.data = nullptr;
+    Tensor &operator=(Tensor &&other) noexcept {
+        this->swap(other);
         return *this;
     };
 
