@@ -5,8 +5,9 @@
 #include <algorithm>
 #include <cassert>
 #include <ostream>
-#if __cpp_concepts
+#if __has_include("concepts")
 #include <concepts>
+#define CONCEPTS_AVAILABLE
 #endif
 
 using std::size_t;
@@ -83,7 +84,7 @@ struct Tensor {
         return total;
     }
 
-#if __cpp_concepts
+#ifdef CONCEPTS_AVAILABLE
     template<std::invocable<size_t> F>
     requires std::convertible_to<std::invoke_result_t<F, size_t>, T>
 #else
