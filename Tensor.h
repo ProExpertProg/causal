@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cassert>
 #include <ostream>
+#include <vector>
 #if __has_include("concepts")
 #include <concepts>
 #define CONCEPTS_AVAILABLE
@@ -41,13 +42,18 @@ struct Tensor {
     const T &operator()(const std::vector<size_t> &coordinates) const {
         return data[rawIndex(coordinates)];
     }
+#ifdef CONCEPTS_AVAILABLE
+#define SIZE_T std::same_as<size_t>
+#else
+#define SIZE_T typename
+#endif
 
-    template<std::same_as<size_t> ...Args>
+    template<SIZE_T ...Args>
     T &operator()(Args ...args) {
         return (*this)({args...});
     }
 
-    template<std::same_as<size_t> ...Args>
+    template<SIZE_T ...Args>
     const T &operator()(Args ...args) const {
         return (*this)({args...});
     }
