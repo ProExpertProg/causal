@@ -4,6 +4,13 @@ project(causal)
 set(CMAKE_CXX_STANDARD 20)
 add_compile_options("-mavx512f" -Wall)
 
+include(FetchContent)
+FetchContent_Declare(
+        argparse
+        GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+)
+FetchContent_MakeAvailable(argparse)
+
 option(ASSEMBLY "Emit assembly output")
 if(${ASSEMBLY})
     add_compile_options("-S")
@@ -16,6 +23,7 @@ target_compile_definitions(test-avx512-compiler PUBLIC COMPILER=1)
 macro(causal_executable NAME POLICY)
     set(TARGET causal-${NAME})
     add_executable(${TARGET} main.cpp)
+    target_link_libraries(${TARGET} argparse)
     target_compile_definitions(${TARGET} PUBLIC POLICY=${POLICY})
     if (${ARGC} GREATER 2)
         target_compile_options(${TARGET} PUBLIC ${ARGV2})
@@ -28,6 +36,6 @@ endmacro()
 causal_executable(serial SERIAL "-Rpass=vectorize")
 causal_executable(serial-fast SERIAL_FAST "")
 causal_executable(cilk PARALLEL "-fopencilk" "-fopencilk")
-causal_executable(omp PARALLEL_OMP "-fopenmp=libomp")
+causal_executable(omp PARALLEL_OMP "-fopenmp" "-lgomp")
 
 # tests

@@ -4,6 +4,8 @@
 
 #include <chrono>
 #include <cstdint>
+#include <random>
+#include <argparse/argparse.hpp>
 
 #ifndef POLICY
 #error POLICY macro must be defined
@@ -11,21 +13,32 @@
 
 using std::chrono::duration_cast;
 
-int main() {
+int main(int argc, const char *argv[]) {
     // TODO cli params
     constexpr size_t NTrials = 10;
 
-    size_t N = 2000, M = N, geos = 4, teams = 5;
-//    size_t N = 5, M = N, geos = 2, teams = 1;
+    argparse::ArgumentParser args{"causal"};
+    args.add_argument("-N").default_value(2000ul).scan<'u', size_t>();
+    args.add_argument("-M").default_value(0ul).scan<'u', size_t>();
+    args.add_argument("-g").default_value(4ul).scan<'u', size_t>();
+    args.add_argument("-t").default_value(5ul).scan<'u', size_t>();
 
-    // TODO std::random
-    srand(0);
+    args.parse_args(argc, argv);
+
+    auto N = args.get<size_t>("-N"),
+            M = args.get<size_t>("-M"),
+            geos = args.get<size_t>("-g"),
+            teams = args.get<size_t>("-t");
+
+    if (M == 0) M = N;
+
+    std::mt19937 random{0};
     Tensor<float> revenue({geos, teams, N, M}, false),
             cost({geos, teams, N}, false),
             profit({geos, teams, N});
 
-    revenue.fill([](std::size_t index) { return (rand() % 10); });
-    cost.fill([](std::size_t index) { return (rand() % 100) / 10.0f; });
+    revenue.fill([&random](std::size_t index) { return (random() % 10); });
+    cost.fill([&random](std::size_t index) { return static_cast<float>(random() % 100) / 10.0f; });
 
 //    std::cout << revenue << std::endl;
 //    std::cout << cost << std::endl;
@@ -33,12 +46,12 @@ int main() {
     std::chrono::nanoseconds duration[NTrials];
 
     for (auto &d: duration) {
-        profit.fill([](std::size_t i){ return 0; });
+        profit.fill([](std::size_t i) { return 0; });
 
         auto start = std::chrono::high_resolution_clock::now();
 
         reduceRevenue<Policy::POLICY>(revenue, cost, profit, N, M, geos, teams);
-        std::cout << profit({0, 0, 0, 0}) << std::endl;
+        std::cout << profit({0, 0, 0}) << std::endl;
         auto end = std::chrono::high_resolution_clock::now();
         d = end - start;
         std::cout << duration_cast<std::chrono::duration<float, std::milli>>(d).count() << "ms" << std::endl;
