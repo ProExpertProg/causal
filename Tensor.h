@@ -151,7 +151,7 @@ std::ostream &operator<<(std::ostream &os, const Tensor<T> &tensor) {
     }
 
     // remove last ' '
-    os.seekp(-1, std::ios_base::end);
+//    os.seekp(-1, std::ios_base::end);
 
     os << "] total: " << tensor.total << " data: ";
     for (int i = 0; i < tensor.total; ++i) {

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(causal)
 
 set(CMAKE_CXX_STANDARD 20)
-add_compile_options("-mavx512f" -Wall)
+add_compile_options("-mavx512f" "-march=native" -Wall)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -35,6 +35,7 @@ endmacro()
 
 causal_executable(serial SERIAL "-Rpass=vectorize")
 causal_executable(serial-fast SERIAL_FAST "")
+causal_executable(serial-vec SERIAL_VEC "")
 causal_executable(cilk PARALLEL "-fopencilk" "-fopencilk")
 causal_executable(omp PARALLEL_OMP "-fopenmp" "-lgomp")
 
