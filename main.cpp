@@ -43,7 +43,7 @@ int main(int argc, const char *argv[]) {
 //    std::cout << revenue << std::endl;
 //    std::cout << cost << std::endl;
 //    std::cout << profit << std::endl;
-    std::chrono::nanoseconds duration[NTrials];
+    std::array<std::chrono::duration<float, std::milli>, NTrials> duration{};
 
     for (auto &d: duration) {
         profit.fill([](std::size_t i) { return 0; });
@@ -51,10 +51,10 @@ int main(int argc, const char *argv[]) {
         auto start = std::chrono::high_resolution_clock::now();
 
         reduceRevenue<Policy::POLICY>(revenue, cost, profit, N, M, geos, teams);
-        std::cout << profit({0, 0, 0}) << std::endl;
+//        std::cout << profit({0, 0, 0}) << std::endl;
         auto end = std::chrono::high_resolution_clock::now();
         d = end - start;
-        std::cout << duration_cast<std::chrono::duration<float, std::milli>>(d).count() << "ms" << std::endl;
+        std::cout << d.count() << "ms" << std::endl;
     }
 
     Tensor<float> profit2({geos, teams, N});
@@ -65,13 +65,24 @@ int main(int argc, const char *argv[]) {
         assert(profit[i] == profit2[i]);
     }
 
-    for (auto d: duration) {
-
+    // collect execution stats
+    std::sort(duration.begin(), duration.end());
+    auto avg = std::reduce(duration.begin(), duration.end()) / NTrials;
+    decltype(avg) median;
+    if (NTrials % 2 == 0) {
+        median = (duration[NTrials / 2] + duration[NTrials / 2 - 1]) / 2;
+    } else {
+        median = duration[NTrials / 2];
     }
+
+    std::cout << "Minimum: " << duration[0].count() << "ms" << std::endl
+              << "Average: " << avg.count() << "ms" << std::endl
+              << "Median: " << median.count() << "ms" << std::endl;
 
 //    std::cout << revenue << std::endl;
 //    std::cout << cost << std::endl;
 //    std::cout << profit << std::endl;
+//    std::cout << profit2 << std::endl;
 
     return 0;
 }
