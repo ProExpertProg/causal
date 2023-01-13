@@ -42,7 +42,7 @@ the handwritten vectorization code. It is used in both `SERIAL_VEC` and `PARALLE
 
 ## Performance results
 The benchmark was compiled with the OpenCilk 1.1 compiler (based on Clang 12.0.0) with the highest optimization level
-(`-O3`) enabled.
+(`-O3`) enabled. I ran each benchmark 10 times and took the median running time.
 I ran all different implementations on my machine, and also ran the fastest two (`SERIAL_VEC` and `PARALLEL`) on MIT Supercloud.
 - My Machine: 11th Generation Intel(R) Core( TM) i9-11900H (24MB Cache, up to 4.9 GHz, 8 cores), 16GB RAM, WSL2, Windows 11
 - MIT Supercloud: Intel(R) Xeon(R) Platinum 8260 CPU @ 2.40GHz, 196GB RAM, GridOS 18.04.6
