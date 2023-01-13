@@ -7,7 +7,9 @@
 #include <ostream>
 #include <vector>
 #if __has_include("concepts")
+// the supercomputer I tested on didn't have the C++20 standard library, so I had to give up
 #include <concepts>
+
 #define CONCEPTS_AVAILABLE
 #endif
 
@@ -42,6 +44,7 @@ struct Tensor {
     const T &operator()(const std::vector<size_t> &coordinates) const {
         return data[rawIndex(coordinates)];
     }
+
 #ifdef CONCEPTS_AVAILABLE
 #define SIZE_T std::same_as<size_t>
 #else
@@ -77,20 +80,12 @@ struct Tensor {
         return index;
     }
 
-    /// for computation, just so we don't make *everything* a member function
-    [[nodiscard]] T *raw() {
-        return data;
-    }
-
-    [[nodiscard]] const T *raw() const {
-        return data;
-    }
-
     [[nodiscard]] size_t size() const {
         return total;
     }
 
 #ifdef CONCEPTS_AVAILABLE
+
     template<std::invocable<size_t> F>
     requires std::convertible_to<std::invoke_result_t<F, size_t>, T>
 #else
@@ -135,7 +130,7 @@ struct Tensor {
         delete[] data;
     }
 
-    friend std::ostream &operator<< <T>(std::ostream &os, const Tensor<T> &tensor);
+    friend std::ostream &operator<<<T>(std::ostream &os, const Tensor<T> &tensor);
 
 private:
     std::vector<size_t> ns;

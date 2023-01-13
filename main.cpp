@@ -19,7 +19,7 @@ int main(int argc, const char *argv[]) {
 
     argparse::ArgumentParser args{"causal"};
     args.add_argument("-N").default_value(2000ul).scan<'u', size_t>();
-    args.add_argument("-M").default_value(0ul).scan<'u', size_t>();
+    args.add_argument("-M").help("If set to 0, it'll be equal to N").default_value(0ul).scan<'u', size_t>();
     args.add_argument("-g").default_value(4ul).scan<'u', size_t>();
     args.add_argument("-t").default_value(5ul).scan<'u', size_t>();
 
